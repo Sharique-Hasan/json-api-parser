@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/Sharique-Hasan/json-api-parser/issues"
   },
-  "homepage": "https://github.com/Sharique-Hasan/json-api-parser#readme"
+  "homepage": "https://github.com/Sharique-Hasan/json-api-parser#readme",
+  "dependencies": {
+    "lodash": "^4.13.1"
+  }
 }

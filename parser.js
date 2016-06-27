@@ -30,7 +30,7 @@
                 nativeObject = _.omit(data[i], ['attributes',
                     'relationships', 'included', 'links']);
                 if(data[i].attributes && Object.keys(data[i].attributes).length > 0) {
-                    nativeObject = _.extendOwn(nativeObject, data[i].attributes);
+                    nativeObject = _.extend(nativeObject, data[i].attributes);
                 }
                 if(data[i].relationships) {
                     allRelationShipKeys = Object.keys(data[i].relationships);
@@ -38,17 +38,17 @@
                     for(keysCounter = 0; keysCounter<allRelationShipKeysLength;keysCounter++){
                         relationshipsKey = allRelationShipKeys[keysCounter];
                         nativeObject[relationshipsKey] = Array.isArray(data[i].relationships[relationshipsKey].data) ? [] : {};
-                        nativeObject[relationshipsKey] = _.extendOwn(nativeObject[relationshipsKey], data[i].relationships[relationshipsKey].data);
+                        nativeObject[relationshipsKey] = _.extend(nativeObject[relationshipsKey], data[i].relationships[relationshipsKey].data);
                         //for now its has no use
                         //nativeObject[relationshipsKey] = _.extendOwn(nativeObject[relationshipsKey], data[i].relationships[relationshipsKey].links);
                         if(Array.isArray(data[i].relationships[relationshipsKey].data)){
                             dataLength = data[i].relationships[relationshipsKey].data.length;
                             for(dataCounter = 0; dataCounter < dataLength; dataCounter++){
-                                nativeObject[relationshipsKey][dataCounter] = _.extendOwn(nativeObject[relationshipsKey][dataCounter], parseFromJsonApi(_.find(included, data[i].relationships[relationshipsKey].data[dataCounter])));
+                                nativeObject[relationshipsKey][dataCounter] = _.extend(nativeObject[relationshipsKey][dataCounter], parseFromJsonApi(_.find(included, data[i].relationships[relationshipsKey].data[dataCounter])));
                             }
                         }
                         else{
-                            nativeObject[relationshipsKey] = _.extendOwn(nativeObject[relationshipsKey], parseFromJsonApi(_.filter(included, data[i].relationships[relationshipsKey].data)));
+                            nativeObject[relationshipsKey] = _.extend(nativeObject[relationshipsKey], parseFromJsonApi(_.filter(included, data[i].relationships[relationshipsKey].data)));
                         }
                     }
                 }
@@ -59,24 +59,24 @@
             native = {};
             native = _.omit(data, ['attributes',
                 'relationships', 'included', 'links']);
-            native = _.extendOwn(native, data.attributes);
+            native = _.extend(native, data.attributes);
             if(data.relationships) {
                 allRelationShipKeys = Object.keys(data.relationships);
                 allRelationShipKeysLength = allRelationShipKeys.length;
                 for(keysCounter = 0; keysCounter<allRelationShipKeysLength;keysCounter++){
                     relationshipsKey = allRelationShipKeys[keysCounter];
                     native[relationshipsKey] = Array.isArray(data.relationships[relationshipsKey].data) ? [] : {};
-                    native[relationshipsKey] = _.extendOwn(native[relationshipsKey], data.relationships[relationshipsKey].data);
+                    native[relationshipsKey] = _.extend(native[relationshipsKey], data.relationships[relationshipsKey].data);
                     //for now, it has no use
                     //native[relationshipsKey] = _.extendOwn(native[relationshipsKey], data.relationships[relationshipsKey].links);
                     if(Array.isArray(data.relationships[relationshipsKey].data)){
                         dataLength = data.relationships[relationshipsKey].data.length;
                         for(dataCounter = 0; dataCounter < dataLength; dataCounter++){
-                            native[relationshipsKey][dataCounter] = _.extendOwn(native[relationshipsKey][dataCounter], parseFromJsonApi(_.filter(included, data.relationships[relationshipsKey].data[dataCounter]).length > 1 ? _.filter(included, data.relationships[relationshipsKey].data[dataCounter]) : _.filter(included, data.relationships[relationshipsKey].data[dataCounter])[0], included));
+                            native[relationshipsKey][dataCounter] = _.extend(native[relationshipsKey][dataCounter], parseFromJsonApi(_.filter(included, data.relationships[relationshipsKey].data[dataCounter]).length > 1 ? _.filter(included, data.relationships[relationshipsKey].data[dataCounter]) : _.filter(included, data.relationships[relationshipsKey].data[dataCounter])[0], included));
                         }
                     }
                     else{
-                        native[relationshipsKey] = _.extendOwn(native[relationshipsKey], parseFromJsonApi(_.filter(included, data.relationships[relationshipsKey].data).length > 1 ? _.filter(included, data.relationships[relationshipsKey].data) : _.filter(included, data.relationships[relationshipsKey].data)[0], included));
+                        native[relationshipsKey] = _.extend(native[relationshipsKey], parseFromJsonApi(_.filter(included, data.relationships[relationshipsKey].data).length > 1 ? _.filter(included, data.relationships[relationshipsKey].data) : _.filter(included, data.relationships[relationshipsKey].data)[0], included));
                     }
                 }
             }
@@ -114,7 +114,7 @@
 
     function processDeepIncluded(data, native){
         var ifIncludeExists = data.constructor === Object ? [data] : data;
-        var deepIncluded = _.compact(_.flatten(ifIncludeExists.map(function(e){return e.included})))
+        var deepIncluded = _.compact(_.flatten(ifIncludeExists.map(function(e){return e.included})));
         if(deepIncluded.length){
             native.included = _.compact([].concat(native.included, ifIncludeExists, deepIncluded));
             ifIncludeExists = ifIncludeExists.map(function(e){
@@ -141,12 +141,11 @@
         if(isArrayOfObject(data)){
             for(var i = 0; i < data.length; i++){
                 nativeObject = {};
-                nativeObject = _.extendOwn(nativeObject,_.pick(data[i], ['type', 'id']));
+                nativeObject = _.extend(nativeObject,_.pick(data[i], ['type', 'id']));
                 try{
                     nativeObject.type = nativeObject.type.trim().replace(' ','-');
                 }
                 catch (e){
-                    toastr.error('Resource type is not defined', 'Error');
                     throw 'Resource type is not defined';
                 }
                 attributes = _.omit(data[i], Object.keys(nativeObject));
@@ -157,13 +156,13 @@
                     for(var k= 0, len = attributeKeys.length;k<len;k++) {
                         attributeKey = attributeKeys[k];
                         if(attributes[attributeKey] && Array.isArray(attributes[attributeKey])){
-                            nativeObject.relationships = _.extendOwn(nativeObject.relationships || {});
+                            nativeObject.relationships = _.extend(nativeObject.relationships || {});
 
                             nativeObject.relationships[attributeKey] = getAttributeKeys(attributes[attributeKey]);
                             native.included = processDeepIncluded(reverseToJsonApiByAttributes(attributes[attributeKey], true), native);
                         }
                         else if(attributes[attributeKey] && attributes[attributeKey].constructor === Object){
-                            nativeObject.relationships = _.extendOwn(nativeObject.relationships || {});
+                            nativeObject.relationships = _.extend(nativeObject.relationships || {});
                             nativeObject.relationships[attributeKey] = { data: _.pick(attributes[attributeKey], ['id', 'type'])};
                             native.included = processDeepIncluded(reverseToJsonApiByAttributes(attributes[attributeKey], true), native);
 
@@ -177,7 +176,7 @@
                     if(!Object.keys(nativeObject).length){
                         nativeObject = _.omit(nativeObject, 'relationships');
                     }
-                    native = _.extendOwn(native, nativeObject);
+                    native = _.extend(native, nativeObject);
                 }else{
                     native.data.push(nativeObject);
                 }
@@ -185,12 +184,11 @@
         }
         else if(data.constructor === Object){
             nativeObject = {};
-            nativeObject = _.extendOwn(nativeObject,_.pick(data, ['type', 'id']));
+            nativeObject = _.extend(nativeObject,_.pick(data, ['type', 'id']));
             try{
                 nativeObject.type = nativeObject.type.trim().replace(' ','-');
             }
             catch (e){
-                toastr.error('Resource type is not defined', 'Error');
                 throw 'Resource type is not defined';
             }
             attributes = _.omit(data, Object.keys(nativeObject));
@@ -201,22 +199,19 @@
                 for(var j= 0,jLen=attributeKeys.length;j<jLen;j++) {
                     attributeKey = attributeKeys[j];
                     if(attributes[attributeKey] && Array.isArray(attributes[attributeKey])){
-                        nativeObject.relationships = _.extendOwn(nativeObject.relationships || {});
+                        nativeObject.relationships = _.extend(nativeObject.relationships || {});
                         nativeObject.relationships[attributeKey] = getAttributeKeys(attributes[attributeKey]);
                         native.included = processDeepIncluded(reverseToJsonApiByAttributes(attributes[attributeKey], true), native);
 
                         //native.included = native.included.concat(reverseToJsonApiByAttributes(attributes[attributeKey], true));
                     }
                     else if(attributes[attributeKey] && attributes[attributeKey].constructor === Object){
-                        nativeObject.relationships = _.extendOwn(nativeObject.relationships || {});
+                        nativeObject.relationships = _.extend(nativeObject.relationships || {});
                         nativeObject.relationships[attributeKey] = { data: _.pick(attributes[attributeKey], ['id', 'type'])};
                         nativeObject.relationships[attributeKey].data.type = nativeObject.relationships[attributeKey].data.type.trim().replace(' ','-');
                         if(!isIncluded){
                             native.included = processDeepIncluded(reverseToJsonApiByAttributes(attributes[attributeKey], true), native);
-
-                            //native.included = native.included.concat(reverseToJsonApiByAttributes(_.clone(attributes[attributeKey]), true));
                         }
-
                     }
                     else if(attributes[attributeKey] && (attributes[attributeKey].constructor === String || attributes[attributeKey].constructor === Boolean || attributes[attributeKey].constructor === Number)){
                         nativeObject.attributes[attributeKey] = attributes[attributeKey];
@@ -227,7 +222,7 @@
                 if(!Object.keys(nativeObject).length){
                     nativeObject = _.omit(nativeObject, 'relationships');
                 }
-                native = _.extendOwn(native, nativeObject);
+                native = _.extend(native, nativeObject);
             }else{
                 native.data = nativeObject;
             }
