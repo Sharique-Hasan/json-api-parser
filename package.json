@@ -1,0 +1,23 @@
+{
+  "name": "json-api-parser",
+  "version": "1.0.0",
+  "description": "A javascript JSON api [http://jsonapi.org/] parser which parses the relationships and included json api elements on root level of respected objects.",
+  "main": "parser.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sharique-Hasan/json-api-parser.git"
+  },
+  "keywords": [
+    "json-api",
+    "parser"
+  ],
+  "author": "Sharique Hasan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sharique-Hasan/json-api-parser/issues"
+  },
+  "homepage": "https://github.com/Sharique-Hasan/json-api-parser#readme"
+}
