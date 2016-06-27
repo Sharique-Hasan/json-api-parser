@@ -4,7 +4,7 @@
   "description": "A javascript JSON api [http://jsonapi.org/] parser which parses the relationships and included json api elements on root level of respected objects.",
   "main": "parser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests --timeout=15000"
   },
   "repository": {
     "type": "git",
@@ -22,5 +22,9 @@
   "homepage": "https://github.com/Sharique-Hasan/json-api-parser#readme",
   "dependencies": {
     "lodash": "^4.13.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
   }
 }

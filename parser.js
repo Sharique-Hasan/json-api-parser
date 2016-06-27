@@ -1,6 +1,3 @@
-/**
- * Created by sharique on 1/21/16.
- */
 
 (function(){
 
@@ -289,7 +286,5 @@
             return data;
         }
     }
-
-
 
 })();
