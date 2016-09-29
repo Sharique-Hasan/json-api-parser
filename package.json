@@ -1,30 +1,36 @@
 {
-  "name": "json-api-parser",
-  "version": "1.0.0",
-  "description": "A javascript JSON api [http://jsonapi.org/] parser which parses the relationships and included json api elements on root level of respected objects.",
-  "main": "parser.js",
+  "name": "jsonapi-parser",
+  "version": "0.0.0-pre0",
+  "description": "A JsonApi deserializer, which maps the jsonapi response to the classes provided according to the type names",
+  "author": "Sharique Hasan <shssuetce@gmail.com>",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "typings": "./lib/index.d.ts",
   "scripts": {
-    "test": "mocha tests --timeout=15000"
+    "test": "karma start",
+    "prepublish": "rimraf ./lib && ngc -p ./tsconfig-build.json"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Sharique-Hasan/json-api-parser.git"
-  },
-  "keywords": [
-    "json-api",
-    "parser"
-  ],
-  "author": "Sharique Hasan",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Sharique-Hasan/json-api-parser/issues"
-  },
-  "homepage": "https://github.com/Sharique-Hasan/json-api-parser#readme",
-  "dependencies": {
+  "peerDependencies": {
+    "core-js": "^2.4.0",
+    "reflect-metadata": "^0.1.3",
+    "zone.js": "^0.6.21",
+    "ajv": "4.2.0",
     "lodash": "^4.13.1"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.5.3"
+    "@types/core-js": "^0.9.32",
+    "@types/jasmine": "^2.2.33",
+    "@types/node": "^6.0.38",
+    "extract-text-webpack-plugin": "^2.0.0-beta.4",
+    "file-loader": "^0.8.5",
+    "null-loader": "^0.1.1",
+    "raw-loader": "^0.5.1",
+    "rimraf": "^2.5.4",
+    "ts-loader": "^0.8.1",
+    "typescript": "^2.0.0",
+    "webpack": "2.1.0-beta.21",
+    "webpack-dev-server": "^2.1.0-beta.4",
+    "webpack-merge": "^0.14.1"
   }
 }
