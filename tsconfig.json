@@ -9,13 +9,12 @@
     "removeComments": false,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
     "types": [
       "node",
       "jasmine",
-      "core-js"
+      "core-js",
+      "mocha",
+      "lodash"
     ]
   }
 }

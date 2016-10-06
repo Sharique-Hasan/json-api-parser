@@ -6,57 +6,81 @@ export class Serializer extends JsonApiParser {
     constructor(public document){
         super();
         if(_.isArray(document)){
-            this.serializeMultipleElements();
+            this.deSerializeMultipleElements();
         }
     }
 
-    serializeMultipleElements(){
-        let parsed = [];
-        _.each(this.document.data, (item: IJsonApi) => {
-            let entity = new this.pool[item.type]();
-            let extend = item.attributes && Object.keys(item.attributes).length ?
-                ['type', 'id', 'attributes'] : ['type', 'id'];
-            Object.assign(entity, _.pick(item, extend));
-            if(item.relationships){
-                _.each(item.relationships, (key, relationship) => {
-                    entity[key] = relationship.data;
-                    if(_.isArray(entity[key])){
-                        _.each(entity[key], (element) => {
-                            Object.assign(element, this.serializeSingleElement(this.findFromInclude(element)));
-                        })
-                    }
-                    else{
-                        Object.assign(entity[key], this.serializeSingleElement(entity[key]));
-                    }
-                });
+    serializeMultipleElements(document?: Array<Object>, isIncluded?: boolean){
+        let jsonApiObjectCollection = [];
+        let jsonApiObject = {};
+        if(!isIncluded){
+            jsonApiObject.data = [];
+        }
+        _.each(document, (item) => {
+            let obj = _.pick(item, ['type', 'id']);
+            let attributes = _.omit(item, Object.keys(obj));
+            if (!obj.type) {
+                throw 'Resource type is not defined';
             }
-            parsed.push(entity);
-        });
-    }
-
-    serializeSingleElement(document?: IJsonApi){
-        let doc = document || this.document.data;
-        let type = doc.type;
-        let entity = new this.pool[type]();
-        let extend = doc.attributes && Object.keys(doc.attributes).length ?
-            ['type', 'id', 'attributes'] : ['type', 'id'];
-        Object.assign(entity, _.pick(doc, extend));
-        if(doc.relationships){
-            _.each(doc.relationships, (key, relationship) => {
-                entity[key] = relationship.data;
-                if(_.isArray(entity[key])){
-                    _.each(entity[key], (element) => {
-                        Object.assign(element, this.serializeSingleElement(this.findFromInclude(element)));
-                    })
+            if(Object.keys(attributes).length){
+                obj.attributes = {};
+            }
+            _.each(attributes, (value, key) => {
+                if(value && _.isArray(value)){
+                    obj.relationships = _.extend(obj.relationships || {});
+                    obj.relationships[key] = Serializer.getAttributesData(value);
+                    jsonApiObject.included = Serializer.processDeepIncludes(
+                        this.serializeByAttribute(value, jsonApiObject)
+                    );
                 }
-                else{
-                    Object.assign(entity[key], this.serializeSingleElement(entity[key]));
+                else if (value && _.isObject(value)){
+                    obj.relationships = _.extend(obj.relationships || {});
                 }
             });
-        }
+        });
+
+
+    }
+
+    serializeSingleElement(document?: Object, isIncluded?: boolean){
+
     }
 
     findFromInclude(item: IJsonApi){
         return _.find(this.document.included, item);
+    }
+
+    serializeByAttribute(attribute){
+        if(_.isArray(attribute)){
+            return _.map(attribute,
+                (data) => _.isArray(data) ?
+                    this.serializeMultipleElements(data, true) : this.serializeSingleElement(data, true));
+        }
+        return this.serializeSingleElement(attribute, true);
+    }
+
+    static getAttributesData(attributes){
+        return {
+            data: _.map(attributes, e => _.pick(e, ['id', 'type']))
+        }
+    }
+
+    static processDeepIncludes(data, native){
+        let includes = _.isArray(data) ? data : [data];
+        let deepIncludes = _(includes)
+            .map(i => i.included)
+            .flattenDeep()
+            .compact();
+        if(deepIncludes.length){
+            native.included = _(deepIncludes)
+                .concat(includes, native.included)
+                .compact();
+        }
+        else{
+            native.included = _(includes)
+                .concat(native.included)
+                .compact();
+        }
+        return native.included;
     }
 }

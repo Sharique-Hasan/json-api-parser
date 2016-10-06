@@ -2,3 +2,5 @@
 node_modules
 *.log
 /typings/
+src/*.js
+src/*.map

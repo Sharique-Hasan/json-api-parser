@@ -15,14 +15,21 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['', '.js', '.ts']
+    extensions: ['', '.js', '.ts', '.json']
   },
 
   module: {
+    preLoaders: [
+      {
+        test: /\.json$/,
+        exclude: helpers.root('node_modules'),
+        loader: "json",
+      }
+    ],
     loaders: [
       {
         test: /\.ts$/,
-        loaders: ['ts', 'angular2-template-loader']
+        loaders: ['ts', 'awesome-typescript-loader']
       },
       {
         test: /\.html$/,
@@ -56,9 +63,9 @@ module.exports = {
     }),
 
     new webpack.ContextReplacementPlugin(
-      // The (\\|\/) piece accounts for path separators in *nix and Windows
-      /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
-      helpers.root('./src') // location of your src
+        // The (\\|\/) piece accounts for path separators in *nix and Windows
+        /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+        helpers.root('./src') // location of your src
     ),
 
     new HtmlWebpackPlugin({
