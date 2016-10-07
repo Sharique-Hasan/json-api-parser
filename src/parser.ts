@@ -2,8 +2,11 @@ import * as _ from 'lodash';
 
 export class JsonApiParser {
     static _pool: Object;
-
-    constructor(){ }
+    constructor(){
+        if(!JsonApiParser._pool){
+            throw 'Pool of classes is not configured';
+        }
+    }
 
     static configure(pool: Object){
         this._pool = pool;
@@ -54,4 +57,5 @@ export class JsonApiParser {
     get pool(): Object{
         return JsonApiParser._pool;
     }
+
 }

@@ -1,17 +1,12 @@
 import { JsonApiParser } from './parser';
 import { IJsonApi } from './ijsonapi';
+import { JsonApi } from './json-api'
 import * as _ from 'lodash';
 
 export class Deserializer extends JsonApiParser {
     constructor(public document){
         super();
         this.document = JsonApiParser.toCamelNotation(document);
-        if(_.isArray(document)){
-            this.deSerializeMultipleElements();
-        }
-        else{
-            this.deSerializeSingleElement();
-        }
     }
 
     deSerializeMultipleElements(){
@@ -64,5 +59,17 @@ export class Deserializer extends JsonApiParser {
 
     findFromInclude(item: IJsonApi){
         return _.find(this.document.included, item);
+    }
+
+    convert(){
+        let data, meta;
+        if(_.isArray(document.data)){
+            data = this.deSerializeMultipleElements();
+        }
+        else{
+            data = this.deSerializeSingleElement();
+        }
+        meta = this.document.meta || null;
+        return new JsonApi(data, meta);
     }
 }

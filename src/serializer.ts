@@ -1,17 +1,13 @@
 import { JsonApiParser } from './parser';
-import { IJsonApi } from './ijsonapi';
 import * as _ from 'lodash';
 
 export class Serializer extends JsonApiParser {
     constructor(public document){
         super();
-        if(_.isArray(document)){
-            this.deSerializeMultipleElements();
-        }
     }
 
     serializeMultipleElements(document?: Array<Object>, isIncluded?: boolean){
-        let jsonApiObjectCollection = [];
+        document = document ? document : this.document;
         let jsonApiObject = {};
         if(!isIncluded){
             jsonApiObject.data = [];
@@ -25,29 +21,65 @@ export class Serializer extends JsonApiParser {
             if(Object.keys(attributes).length){
                 obj.attributes = {};
             }
-            _.each(attributes, (value, key) => {
-                if(value && _.isArray(value)){
-                    obj.relationships = _.extend(obj.relationships || {});
-                    obj.relationships[key] = Serializer.getAttributesData(value);
-                    jsonApiObject.included = Serializer.processDeepIncludes(
-                        this.serializeByAttribute(value, jsonApiObject)
-                    );
-                }
-                else if (value && _.isObject(value)){
-                    obj.relationships = _.extend(obj.relationships || {});
-                }
-            });
+            this.processAttributes(attributes, jsonApiObject, obj);
         });
-
-
+        if (isIncluded) {
+            if (!Object.keys(obj).length) {
+                obj = _.omit(obj, 'relationships');
+            }
+            Object.assign(jsonApiObject, obj);
+        }
+        else {
+            jsonApiObject.data.push(obj);
+        }
+        return jsonApiObject;
     }
 
     serializeSingleElement(document?: Object, isIncluded?: boolean){
-
+        document = document ? document : this.document;
+        let jsonApiObject = {};
+        let obj = _.pick(document, ['type', 'id']);
+        let attributes = _.omit(document, Object.keys(obj));
+        if (!obj.type) {
+            throw 'Resource type is not defined';
+        }
+        if(Object.keys(attributes).length){
+            obj.attributes = {};
+        }
+        this.processAttributes(attributes, jsonApiObject, obj);
+        if (isIncluded) {
+            if (!Object.keys(obj).length) {
+                obj = _.omit(obj, 'relationships');
+            }
+            Object.assign(jsonApiObject, obj);
+        }
+        else {
+            jsonApiObject.data.push(obj);
+        }
+        return jsonApiObject;
     }
 
-    findFromInclude(item: IJsonApi){
-        return _.find(this.document.included, item);
+    processAttributes(attributes, jsonApiObject, instance){
+        _.each(attributes, (value, key) => {
+            if(value && _.isArray(value)){
+                instance.relationships = _.extend(instance.relationships || {});
+                instance.relationships[key] = Serializer.getAttributesData(value);
+                jsonApiObject.included = Serializer.processDeepIncludes(
+                    this.serializeByAttribute(value, jsonApiObject)
+                );
+            }
+            else if (value && _.isObject(value)){
+                instance.relationships = _.extend(instance.relationships || {});
+                instance.relationships[key] = { data: _.pick(value, ['type', 'id']) };
+                jsonApiObject.included = Serializer.processDeepIncludes(
+                    this.serializeByAttribute(value, jsonApiObject)
+                );
+            }
+            else if (!_.isNull(value) && !_.isUndefined(value) &&
+                (_.isString(value) || _.isNumber(value) || _.isBoolean(value))) {
+                instance.attributes[key] = value;
+            }
+        });
     }
 
     serializeByAttribute(attribute){
@@ -58,6 +90,8 @@ export class Serializer extends JsonApiParser {
         }
         return this.serializeSingleElement(attribute, true);
     }
+
+
 
     static getAttributesData(attributes){
         return {
@@ -82,5 +116,16 @@ export class Serializer extends JsonApiParser {
                 .compact();
         }
         return native.included;
+    }
+
+    convert(){
+        let parsed;
+        if(_.isArray(this.document)){
+            parsed = this.serializeMultipleElements();
+        }
+        else{
+            parsed = this.serializeSingleElement();
+        }
+        return parsed;
     }
 }

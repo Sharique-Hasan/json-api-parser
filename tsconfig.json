@@ -3,18 +3,24 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "sourceMap": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "types": [
-      "node",
-      "jasmine",
-      "core-js",
-      "mocha",
-      "lodash"
-    ]
-  }
+    "noImplicitAny": false,
+    "declaration": true,
+    "outDir": "./lib",
+    "stripInternal": true
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true
+  },
+  "exclude": [
+    "node_modules",
+    "typings/main",
+    "typings/main.d.ts"
+  ]
 }
