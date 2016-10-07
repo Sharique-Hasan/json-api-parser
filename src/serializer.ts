@@ -8,12 +8,13 @@ export class Serializer extends JsonApiParser {
 
     serializeMultipleElements(document?: Array<Object>, isIncluded?: boolean){
         document = document ? document : this.document;
-        let jsonApiObject = {};
+        let obj: Object;
+        let jsonApiObject: Object = {};
         if(!isIncluded){
             jsonApiObject.data = [];
         }
         _.each(document, (item) => {
-            let obj = _.pick(item, ['type', 'id']);
+            obj = _.extend({}, _.pick(item, ['type', 'id']));
             let attributes = _.omit(item, Object.keys(obj));
             if (!obj.type) {
                 throw 'Resource type is not defined';

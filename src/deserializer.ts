@@ -1,5 +1,5 @@
 import { JsonApiParser } from './parser';
-import { IJsonApi } from './ijsonapi';
+import { IJsonApiEntity } from './ijsonapi-entity';
 import { JsonApi } from './json-api'
 import * as _ from 'lodash';
 
@@ -11,7 +11,7 @@ export class Deserializer extends JsonApiParser {
 
     deSerializeMultipleElements(){
         let parsed = [];
-        _.each(this.document.data, (item: IJsonApi) => {
+        _.each(this.document.data, (item: IJsonApiEntity) => {
             let entity = new this.pool[item.type]();
             let extend = item.attributes && Object.keys(item.attributes).length ?
                 ['type', 'id', 'attributes'] : ['type', 'id'];
@@ -34,7 +34,7 @@ export class Deserializer extends JsonApiParser {
         return parsed;
     }
 
-    deSerializeSingleElement(document?: IJsonApi){
+    deSerializeSingleElement(document?: IJsonApiEntity){
         let doc = document || this.document.data;
         let type = doc.type;
         let entity = new this.pool[type]();
@@ -57,7 +57,7 @@ export class Deserializer extends JsonApiParser {
         return entity;
     }
 
-    findFromInclude(item: IJsonApi){
+    findFromInclude(item: IJsonApiEntity){
         return _.find(this.document.included, item);
     }
 
