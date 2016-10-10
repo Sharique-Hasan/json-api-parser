@@ -9,7 +9,8 @@ export class Deserializer extends JsonApiParser {
         this.document = JsonApiParser.toCamelNotation(document);
     }
 
-    deSerializeMultipleElements(){
+    deSerializeMultipleElements(document?: Array<IJsonApiEntity>){
+        document = document || this.document.data;
         let parsed = [];
         _.each(this.document.data, (item: IJsonApiEntity) => {
             let entity = new this.pool[item.type]();
@@ -46,11 +47,11 @@ export class Deserializer extends JsonApiParser {
                 entity[key] = relationship.data;
                 if(_.isArray(entity[key])){
                     _.each(entity[key], (element) => {
-                        Object.assign(element, this.serializeSingleElement(this.findFromInclude(element)));
+                        Object.assign(element, this.deSerializeSingleElement(this.findFromInclude(element)));
                     })
                 }
                 else{
-                    Object.assign(entity[key], this.serializeSingleElement(entity[key]));
+                    Object.assign(entity[key], this.deSerializeSingleElement(entity[key]));
                 }
             });
         }

@@ -24,15 +24,18 @@ export class Serializer extends JsonApiParser {
             }
             this.processAttributes(attributes, jsonApiObject, obj);
         });
+
         if (isIncluded) {
             if (!Object.keys(obj).length) {
                 obj = _.omit(obj, 'relationships');
             }
             Object.assign(jsonApiObject, obj);
         }
+
         else {
             jsonApiObject.data.push(obj);
         }
+
         return jsonApiObject;
     }
 
@@ -66,14 +69,16 @@ export class Serializer extends JsonApiParser {
                 instance.relationships = _.extend(instance.relationships || {});
                 instance.relationships[key] = Serializer.getAttributesData(value);
                 jsonApiObject.included = Serializer.processDeepIncludes(
-                    this.serializeByAttribute(value, jsonApiObject)
+                    this.serializeByAttribute(value),
+                    jsonApiObject
                 );
             }
             else if (value && _.isObject(value)){
                 instance.relationships = _.extend(instance.relationships || {});
                 instance.relationships[key] = { data: _.pick(value, ['type', 'id']) };
                 jsonApiObject.included = Serializer.processDeepIncludes(
-                    this.serializeByAttribute(value, jsonApiObject)
+                    this.serializeByAttribute(value),
+                    jsonApiObject
                 );
             }
             else if (!_.isNull(value) && !_.isUndefined(value) &&
